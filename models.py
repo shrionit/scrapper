@@ -9,10 +9,8 @@ from sqlalchemy import (
     inspect,
 )
 from sqlalchemy.orm import declarative_base, relationship, sessionmaker
+from connection import engine
 
-# Replace 'your_postgres_url' with the actual PostgreSQL connection URL from AWS RDS
-database_uri = "postgresql+psycopg2://postgres:postgrespw@scrapperdb.cfvardkbdrj2.ap-south-1.rds.amazonaws.com:5432/scrap"
-engine = create_engine(database_uri, echo=False)
 Base = declarative_base()
 inspector = inspect(engine)
 

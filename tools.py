@@ -11,6 +11,19 @@ def extract_scripts(element):
     return ""
 
 
+def read_from_file(file_path):
+    try:
+        with open(file_path, "r") as file:
+            content = file.read()
+        return content
+    except FileNotFoundError:
+        print(f"Error: File '{file_path}' not found.")
+        return None
+    except Exception as e:
+        print(f"Error reading from {file_path.split('/')[-1]}: {e}")
+        return None
+
+
 def create_soup(link):
     response = requests.get(link)
 

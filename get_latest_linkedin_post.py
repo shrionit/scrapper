@@ -2,10 +2,12 @@ import pyperclip
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.service import Service as ChromeService
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.support import expected_conditions as EC
 import time
+
+from tools import read_from_file
 
 
 def scrollToBottom(handle):
@@ -33,16 +35,19 @@ def createClassSelector(classname):
 
 
 def get_latest_linked_post(pageUrl: str):
-    username = "sptiwari46289@gmail.com"
-    password = "Shri&6459"
+    config = read_from_file("dbconfig.json")
+    username = config["lusername"]
+    password = config["lpassword"]
 
     chromeOptions = Options()
     # chromeOptions.add_argument("--no-sandbox")
-    chromeOptions.add_argument("--headless")
+    # chromeOptions.add_argument("--headless")
     # chromeOptions.add_argument("--disable-dev-shm-usage")
 
     # Initialize WebDriver for Chrome
-    browser = webdriver.Chrome(options=chromeOptions)
+    browser = webdriver.Chrome(
+        service=ChromeService(ChromeDriverManager().install()), options=chromeOptions
+    )
 
     # Open LinkedIn login page
     browser.get("https://www.linkedin.com/login")

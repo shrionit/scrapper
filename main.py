@@ -1,9 +1,4 @@
-from sqlalchemy import create_engine
-
-
-engine = create_engine(
-    "postgresql+psycopg2://postgres:postgrespw@scrapperdb.cfvardkbdrj2.ap-south-1.rds.amazonaws.com:5432/"
-)
+from connection import engine
 
 # Raw SQL query to list all databases in PostgreSQL
 conn = engine.connect()
