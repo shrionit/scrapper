@@ -1,3 +1,4 @@
+import json
 import pyperclip
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -35,7 +36,7 @@ def createClassSelector(classname):
 
 
 def get_latest_linked_post(pageUrl: str):
-    config = read_from_file("dbconfig.json")
+    config = json.loads(read_from_file("dbconfig.json"))
     username = config["lusername"]
     password = config["lpassword"]
 
