@@ -47,8 +47,7 @@ def get_latest_linked_post(pageUrl: str):
 
     # Initialize WebDriver for Chrome
     browser = webdriver.Chrome(
-        service=ChromeDriverManager("/usr/bin/google-chrome").install(),
-        options=chromeOptions,
+        executable_path="/usr/bin/google-chrome", options=chromeOptions
     )
 
     # Open LinkedIn login page
