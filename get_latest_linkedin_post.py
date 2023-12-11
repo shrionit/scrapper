@@ -46,9 +46,7 @@ def get_latest_linked_post(pageUrl: str):
     # chromeOptions.add_argument("--disable-dev-shm-usage")
 
     # Initialize WebDriver for Chrome
-    browser = webdriver.Chrome(
-        executable_path="/usr/bin/google-chrome", options=chromeOptions
-    )
+    browser = webdriver.Chrome(options=chromeOptions)
 
     # Open LinkedIn login page
     browser.get("https://www.linkedin.com/login")
