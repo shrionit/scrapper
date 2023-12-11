@@ -42,13 +42,13 @@ def get_latest_linked_post(pageUrl: str):
 
     chromeOptions = Options()
     # chromeOptions.add_argument("--no-sandbox")
-    # chromeOptions.add_argument("--headless")
+    chromeOptions.add_argument("--headless")
     # chromeOptions.add_argument("--disable-dev-shm-usage")
 
+    chrome_path = "/usr/bin/google-chrome"
+
     # Initialize WebDriver for Chrome
-    browser = webdriver.Chrome(
-        service=ChromeService(ChromeDriverManager().install()), options=chromeOptions
-    )
+    browser = webdriver.Chrome(chrome_path, options=chromeOptions)
 
     # Open LinkedIn login page
     browser.get("https://www.linkedin.com/login")
@@ -66,7 +66,7 @@ def get_latest_linked_post(pageUrl: str):
     post_page = post_page.replace("//posts", "/posts")
     browser.get(post_page)
 
-    time.sleep(10)
+    time.sleep(5)
     company_name = pageUrl.rstrip("/").split("/")[-1].replace("-", " ").title()
 
     element = browser.find_element(
@@ -91,5 +91,6 @@ def get_latest_linked_post(pageUrl: str):
     return {company_name: copied_text}
 
 
-d = get_latest_linked_post("https://www.linkedin.com/company/accenture/")
-print(d)
+if __name__ == "__main__":
+    d = get_latest_linked_post("https://www.linkedin.com/company/accenture/")
+    print(d)
