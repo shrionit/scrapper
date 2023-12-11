@@ -40,13 +40,13 @@ def get_latest_linked_post(pageUrl: str):
     username = config["lusername"]
     password = config["lpassword"]
 
-    chromeOptions = Options()
+    # chromeOptions = Options()
     # chromeOptions.add_argument("--no-sandbox")
-    chromeOptions.add_argument("--headless")
+    # chromeOptions.add_argument("--headless")
     # chromeOptions.add_argument("--disable-dev-shm-usage")
 
     # Initialize WebDriver for Chrome
-    browser = webdriver.Chrome(options=chromeOptions)
+    browser = webdriver.Firefox()
 
     # Open LinkedIn login page
     browser.get("https://www.linkedin.com/login")
