@@ -59,8 +59,8 @@ class DBSession:
     def getCompany(self):
         return self.session.query(Company).all()
 
-    def getCompanyPost(self, id):
-        return self.session.query(CompanyPost).where({"companyId": id}).all()
+    def getCompanyPost(self, companyId):
+        return self.session.query(CompanyPost).filter_by(companyId=companyId).all()
 
     def getCompanyPostByLink(self, post_link):
         return self.session.query(CompanyPost).filter_by(postLink=post_link).first()
@@ -86,10 +86,9 @@ class DBSession:
             print(f"Company with ID {companyId} not found.")
             return None
 
-    def updateCompanyPost(self, post_id, new_post_link, new_post_data):
+    def updateCompanyPost(self, post_id, new_post_data):
         post = self.session.query(CompanyPost).get(post_id)
         if post:
-            post.postLink = new_post_link
             post.postData = new_post_data
             self.session.commit()
             return post

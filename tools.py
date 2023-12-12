@@ -42,3 +42,12 @@ def scrape_linkedin_post(linkedin_post_url):
         obj = json.loads(scriptcontent)
         return obj
     return None
+
+
+def convert_dict_to_json(input_dict):
+    try:
+        json_string = json.dumps(input_dict, ensure_ascii=False)
+        return json_string
+    except Exception as e:
+        print(f"Error converting dictionary to JSON: {e}")
+        return None

@@ -3,15 +3,32 @@ import time
 import json
 from get_latest_linkedin_post import get_latest_linked_post
 
+from models import DBSession
+from tools import scrape_linkedin_post
+
+companies = None
+
+
+def fetchPost(postLink):
+    try:
+        post = scrape_linkedin_post(postLink)
+        return post["articleBody"]
+    except Exception as e:
+        print(post)
+
 
 def job():
-    output = get_latest_linked_post("https://www.linkedin.com/company/accenture/")
-    with open("/tmp/out.txt", "w") as f:
-        f.writelines(json.dumps(output))
+    if companies == None:
+        db = DBSession()
+        companies = db.getCompany()
+
+    for company in companies:
+        output = get_latest_linked_post(company.pageLink)
+        postBody = fetchPost(output["postLink"])
+        db.addCompanyPost(companyId=company.ID, data=postBody)
 
 
-schedule.every(5).minutes.do(job)
-job()
+schedule.every().day.at("12:00").do(job)
 while True:
     schedule.run_pending()
-    time.sleep(5)
+    time.sleep(60 * 60 * 6)

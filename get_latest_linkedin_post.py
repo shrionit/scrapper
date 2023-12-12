@@ -86,7 +86,7 @@ def get_latest_linked_post(pageUrl: str):
     ).click()
     time.sleep(2)
     copied_text = pyperclip.paste()
-    return {company_name: copied_text}
+    return {"companyName": company_name, "postLink": copied_text}
 
 
 if __name__ == "__main__":
