@@ -36,7 +36,7 @@ def createClassSelector(classname):
 
 
 def get_latest_linked_post(pageUrl: str):
-    config = json.loads(read_from_file("dbconfig.json"))
+    config = json.loads(read_from_file("/home/baram/scrapper/dbconfig.json"))
     username = config["lusername"]
     password = config["lpassword"]
 
@@ -91,5 +91,5 @@ def get_latest_linked_post(pageUrl: str):
 
 if __name__ == "__main__":
     d = get_latest_linked_post("https://www.linkedin.com/company/accenture/")
-    with open("out.txt", "w") as f:
+    with open("/tmp/out.txt", "w") as f:
         f.writelines(json.dumps(d))
