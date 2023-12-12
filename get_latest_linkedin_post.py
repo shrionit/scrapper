@@ -46,7 +46,7 @@ def get_latest_linked_post(pageUrl: str):
     # chromeOptions.add_argument("--disable-dev-shm-usage")
 
     # Initialize WebDriver for Chrome
-    browser = webdriver.Firefox()
+    browser = webdriver.Chrome()
 
     # Open LinkedIn login page
     browser.get("https://www.linkedin.com/login")
@@ -91,4 +91,5 @@ def get_latest_linked_post(pageUrl: str):
 
 if __name__ == "__main__":
     d = get_latest_linked_post("https://www.linkedin.com/company/accenture/")
-    print(d)
+    with open("out.txt", "w") as f:
+        f.writelines(json.dumps(d))
