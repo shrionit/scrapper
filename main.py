@@ -29,7 +29,7 @@ def fetchLatestCompanyPost():
 
 
 # due to vm being in london time
-schedule.every().day.at("6:30").do(fetchLatestCompanyPost)
+schedule.every().day.at("6:30:00").do(fetchLatestCompanyPost)
 while True:
     schedule.run_pending()
     time.sleep(60 * 60 * 6)
