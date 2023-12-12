@@ -17,7 +17,7 @@ def fetchPost(postLink):
         print(post)
 
 
-def job():
+def fetchLatestCompanyPost():
     if companies == None:
         db = DBSession()
         companies = db.getCompany()
@@ -28,7 +28,8 @@ def job():
         db.addCompanyPost(companyId=company.ID, data=postBody)
 
 
-schedule.every().day.at("12:00").do(job)
+# due to vm being in london time
+schedule.every().day.at("6:30").do(fetchLatestCompanyPost)
 while True:
     schedule.run_pending()
     time.sleep(60 * 60 * 6)
