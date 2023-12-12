@@ -1,9 +1,17 @@
-from connection import engine
+import schedule
+import time
+import json
+from get_latest_linkedin_post import get_latest_linked_post
 
-# Raw SQL query to list all databases in PostgreSQL
-conn = engine.connect()
-result = conn.exec_driver_sql("SELECT datname FROM pg_database;")
 
-# Fetch and print the list of databases
-databases = [row[0] for row in result]
-print(databases)
+def job():
+    output = get_latest_linked_post()
+    with open("/tmp/out.txt", "w") as f:
+        f.writelines(json.dumps(output))
+
+
+schedule.every(10).minutes.do(job)
+
+while True:
+    schedule.run_pending()
+    time.sleep(10 * 60)
