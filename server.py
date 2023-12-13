@@ -48,7 +48,7 @@ def searchCompany(name: str = ""):
     return db.filterCompanyByName(name)
 
 
-@api.delete(company + "/{companyId}/insights")
+@api.get(company + "/{companyId}/insights")
 def getInsights(companyId):
     try:
         posts = [post.postData for post in db.getCompanyPost(companyId)]
