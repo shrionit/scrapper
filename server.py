@@ -54,4 +54,5 @@ def getInsights(companyId):
         posts = [post.postData for post in db.getCompanyPost(companyId)]
         return generateReportFromPosts(posts)
     except Exception as e:
+        print(e)
         return "Error: Something went wrong with the AI"
