@@ -24,7 +24,7 @@ def add_company(data: dict):
     if not company_name or not company_link:
         return {"error": "Both 'name' and 'link' are required fields"}
 
-    if db.addCompany({"postLink": company_link, "name": company_name}):
+    if db.addCompany({"pageLink": company_link, "name": company_name}):
         return {
             "message": "Company added successfully",
             "name": company_name,

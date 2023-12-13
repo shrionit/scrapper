@@ -83,7 +83,7 @@ class DBSession:
 
     def deleteCompany(self, companyId):
         self.start()
-        self.session.delete(self.session.query(Company).filter_by(id=companyId).first())
+        self.session.delete(self.session.query(Company).get(companyId))
         self.session.commit()
         self.close()
         return {"message": "Company deleted successfully"}
