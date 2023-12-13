@@ -81,6 +81,12 @@ class DBSession:
         self.close()
         return post
 
+    def filterCompanyByName(self, name):
+        self.start()
+        out = self.session.query(Company).filter(Company.Name.ilike(f"%{name}%")).all()
+        self.close()
+        return out
+
     def deleteCompany(self, companyId):
         self.start()
         self.session.delete(self.session.query(Company).get(companyId))

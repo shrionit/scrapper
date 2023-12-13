@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from ai import generateReportFromPosts
 from models import DBSession
 
 api = FastAPI()
@@ -40,3 +41,17 @@ def deleteCompany(companyId: int):
     if out:
         return out
     return "Error: Something went wrong"
+
+
+@api.get(company)
+def searchCompany(name: str = ""):
+    return db.filterCompanyByName(name)
+
+
+@api.delete(company + "/{companyId}/insights")
+def getInsights(companyId):
+    try:
+        posts = [post.postData for post in db.getCompanyPost(companyId)]
+        return generateReportFromPosts(posts)
+    except Exception as e:
+        return "Error: Something went wrong with the AI"
