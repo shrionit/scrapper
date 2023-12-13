@@ -27,7 +27,9 @@ def fetchLatestCompanyPost():
         print(f"CHECKPOINT[{output['companyName']}]: Got latest post link.")
         postBody = fetchPost(output["postLink"])
         print(f"CHECKPOINT[{output['companyName']}]: Got latest post data.")
-        db.addCompanyPost(company.ID, postBody)
+        db.addCompanyPost(
+            company.ID, {"postLink": output["postLink"], "postData": postBody}
+        )
         print(f"CHECKPOINT[{output['companyName']}]: Added the post data to db")
 
 
@@ -39,9 +41,13 @@ def time_until_target(target_seconds):
     return seconds_until_target
 
 
+def stime(h, m, s):
+    return f"{h:02}:{m:02}:{s:02}"
+
+
 # due to vm being in london time
-schedule.every().day.at("07:50:00").do(fetchLatestCompanyPost)
+schedule.every().day.at(stime(8, 17)).do(fetchLatestCompanyPost)
 while True:
     schedule.run_pending()
-    print("Waiting for next execution")
+    print("Waiting for next execution", end="\r")
     time.sleep(1)
