@@ -1,3 +1,4 @@
+import json
 from sqlalchemy import (
     create_engine,
     Column,
@@ -88,17 +89,32 @@ class DBSession:
 
     def addCompanyPost(self, companyId, data):
         self.start()
+
         company = self.session.query(Company).get(companyId)
+
         if company:
-            new_post = CompanyPost(
-                postLink=data.get("postLink"),
-                postData=data.get("postData"),
-                company=company,
+            post_link = data.get("postLink")
+            # Check if a post with the same link already exists
+            existing_post = (
+                self.session.query(CompanyPost).filter_by(postLink=post_link).first()
             )
-            self.session.add(new_post)
-            self.session.commit()
-            self.close()
-            return new_post
+            if existing_post:
+                print(
+                    f"Post with link '{post_link}' already exists. Not adding a new one."
+                )
+                self.close()
+                return "EXISTS"
+            else:
+                new_post = CompanyPost(
+                    postLink=post_link,
+                    postData=data.get("postData"),
+                    company=company,
+                )
+
+                self.session.add(new_post)
+                self.session.commit()
+                self.close()
+                return new_post
         else:
             print(f"Company with ID {companyId} not found.")
             self.close()
@@ -129,3 +145,15 @@ class DBSession:
             print(f"Company post with ID {post_id} not found.")
             self.close()
             return None
+
+
+def getLastCompanyPosts():
+    db = DBSession()
+    for company in db.getCompany():
+        lastPost = db.getCompanyPost(company.ID)[-1]
+        lp = {
+            "companyName": company.Name,
+            "lastPostID": lastPost.ID,
+            "postLink": lastPost.postLink,
+        }
+        print(json.dumps(lp, indent=4))

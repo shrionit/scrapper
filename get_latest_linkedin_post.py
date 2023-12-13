@@ -39,9 +39,9 @@ def get_latest_linked_post(pageUrl: str):
     config = json.loads(read_from_file("dbconfig.json"))
     username = config["lusername"]
     password = config["lpassword"]
-    loginwait = config["loginWait"] | 5
-    postpagewait = config["postPageWait"] | 10
-    clickWait = config["postClickWait"] | 5
+    loginwait = int(config.get("loginWait", 5))
+    postpagewait = int(config.get("postPageWait", 10))
+    clickWait = int(config.get("postClickWait", 5))
 
     # chromeOptions = Options()
     # chromeOptions.add_argument("--no-sandbox")
@@ -63,12 +63,14 @@ def get_latest_linked_post(pageUrl: str):
     time.sleep(loginwait)
 
     # Navigate to the posts page of the company
+    company_name = (
+        pageUrl.split("company")[-1].strip("/").split("/")[0].replace("-", " ").title()
+    )
     post_page = pageUrl + "/posts"
     post_page = post_page.replace("//posts", "/posts")
     browser.get(post_page)
 
     time.sleep(postpagewait)
-    company_name = pageUrl.rstrip("/").split("/")[-1].replace("-", " ").title()
 
     element = browser.find_element(
         By.CSS_SELECTOR,

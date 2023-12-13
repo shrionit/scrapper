@@ -1,9 +1,9 @@
 import schedule
-import time
+import time, json
 from datetime import datetime, timedelta
 from get_latest_linkedin_post import get_latest_linked_post
 
-from models import DBSession
+from models import DBSession, getLastCompanyPosts
 from tools import scrape_linkedin_post
 
 companies = []
@@ -24,14 +24,16 @@ def fetchLatestCompanyPost():
         companies = db.getCompany()
     for company in companies:
         output = get_latest_linked_post(company.pageLink)
-        print(output)
         print(f"CHECKPOINT[{output['companyName']}]: Got latest post link.")
         postBody = fetchPost(output["postLink"])
         print(f"CHECKPOINT[{output['companyName']}]: Got latest post data.")
-        db.addCompanyPost(
+        output = db.addCompanyPost(
             company.ID, {"postLink": output["postLink"], "postData": postBody}
         )
-        print(f"CHECKPOINT[{output['companyName']}]: Added the post data to db")
+        if output == "EXISTS":
+            print(f"CHECKPOINT[{output['companyName']}]: Not a new post")
+        else:
+            print(f"CHECKPOINT[{output['companyName']}]: Added the post data to db")
 
 
 def time_until_target(target_seconds):
@@ -46,10 +48,9 @@ def stime(h, m, s):
     return f"{h:02}:{m:02}:{s:02}"
 
 
-# # due to vm being in london time
-# schedule.every().day.at(stime(8, 17, 00)).do(fetchLatestCompanyPost)
-# while True:
-#     schedule.run_pending()
-#     print("Waiting for next execution", end="\r")
-#     time.sleep(1)
-fetchLatestCompanyPost()
+# due to vm being in london time
+schedule.every().day.at(stime(12, 0, 0)).do(fetchLatestCompanyPost)
+while True:
+    schedule.run_pending()
+    print("Waiting for next execution", end="\r")
+    time.sleep(1)
