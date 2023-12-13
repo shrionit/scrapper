@@ -13,7 +13,7 @@ def listCompanies():
     return db.getCompany()
 
 
-@api.post("/company")
+@api.post(company)
 def add_company(data: dict):
     if not data:
         return {"error": "Data is required"}
@@ -32,3 +32,11 @@ def add_company(data: dict):
         }
     else:
         return "Error: Failed to add company"
+
+
+@api.delete(company + "/{companyId}")
+def deleteCompany(companyId: int):
+    out = db.deleteCompany(companyId)
+    if out:
+        return out
+    return "Error: Something went wrong"

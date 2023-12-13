@@ -24,7 +24,9 @@ class Company(Base):
     pageLink = Column(String)
 
     # Define the relationship to CompanyPost
-    posts = relationship("CompanyPost", back_populates="company")
+    posts = relationship(
+        "CompanyPost", back_populates="company", cascade="all, delete-orphan"
+    )
 
 
 class CompanyPost(Base):
@@ -84,7 +86,9 @@ class DBSession:
         self.session.delete(
             self.session.query(Company).filter_by(companyId=companyId).first()
         )
+        self.session.commit()
         self.close()
+        return {"message": "Company deleted successfully"}
 
     def addCompany(self, data):
         self.start()
