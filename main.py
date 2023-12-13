@@ -24,6 +24,7 @@ def fetchLatestCompanyPost():
         companies = db.getCompany()
     for company in companies:
         output = get_latest_linked_post(company.pageLink)
+        print(output)
         print(f"CHECKPOINT[{output['companyName']}]: Got latest post link.")
         postBody = fetchPost(output["postLink"])
         print(f"CHECKPOINT[{output['companyName']}]: Got latest post data.")
@@ -45,9 +46,10 @@ def stime(h, m, s):
     return f"{h:02}:{m:02}:{s:02}"
 
 
-# due to vm being in london time
-schedule.every().day.at(stime(8, 17)).do(fetchLatestCompanyPost)
-while True:
-    schedule.run_pending()
-    print("Waiting for next execution", end="\r")
-    time.sleep(1)
+# # due to vm being in london time
+# schedule.every().day.at(stime(8, 17, 00)).do(fetchLatestCompanyPost)
+# while True:
+#     schedule.run_pending()
+#     print("Waiting for next execution", end="\r")
+#     time.sleep(1)
+fetchLatestCompanyPost()

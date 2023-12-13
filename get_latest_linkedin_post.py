@@ -36,9 +36,12 @@ def createClassSelector(classname):
 
 
 def get_latest_linked_post(pageUrl: str):
-    config = json.loads(read_from_file("/home/baram/scrapper/dbconfig.json"))
+    config = json.loads(read_from_file("dbconfig.json"))
     username = config["lusername"]
     password = config["lpassword"]
+    loginwait = config["loginWait"] | 5
+    postpagewait = config["postPageWait"] | 10
+    clickWait = config["postClickWait"] | 5
 
     # chromeOptions = Options()
     # chromeOptions.add_argument("--no-sandbox")
@@ -57,14 +60,14 @@ def get_latest_linked_post(pageUrl: str):
     elementID = browser.find_element(By.ID, "password")
     elementID.send_keys(password)
     elementID.submit()
-    time.sleep(5)
+    time.sleep(loginwait)
 
     # Navigate to the posts page of the company
     post_page = pageUrl + "/posts"
     post_page = post_page.replace("//posts", "/posts")
     browser.get(post_page)
 
-    time.sleep(5)
+    time.sleep(postpagewait)
     company_name = pageUrl.rstrip("/").split("/")[-1].replace("-", " ").title()
 
     element = browser.find_element(
@@ -74,7 +77,7 @@ def get_latest_linked_post(pageUrl: str):
         ),
     )
     element.click()
-    time.sleep(5)
+    time.sleep(clickWait)
     dropDownContainerClass = createClassSelector(
         "feed-shared-control-menu__content artdeco-dropdown__content artdeco-dropdown--is-dropdown-element artdeco-dropdown__content--has-arrow artdeco-dropdown__content--arrow-right artdeco-dropdown__content--justification-right artdeco-dropdown__content--placement-bottom ember-view"
     )

@@ -1,4 +1,4 @@
-import json
+import json, os
 from bs4 import BeautifulSoup
 import requests
 
@@ -13,7 +13,7 @@ def extract_scripts(element):
 
 def read_from_file(file_path):
     try:
-        with open(file_path, "r") as file:
+        with open(os.path.abspath(file_path), "r") as file:
             content = file.read()
         return content
     except FileNotFoundError:
