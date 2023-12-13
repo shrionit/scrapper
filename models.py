@@ -79,6 +79,13 @@ class DBSession:
         self.close()
         return post
 
+    def deleteCompany(self, companyId):
+        self.start()
+        self.session.delete(
+            self.session.query(Company).filter_by(companyId=companyId).first()
+        )
+        self.close()
+
     def addCompany(self, data):
         self.start()
         new_company = Company(Name=data.get("name"), pageLink=data.get("pageLink"))
