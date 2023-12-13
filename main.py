@@ -27,10 +27,10 @@ def fetchLatestCompanyPost():
         print(f"CHECKPOINT[{output['companyName']}]: Got latest post link.")
         postBody = fetchPost(output["postLink"])
         print(f"CHECKPOINT[{output['companyName']}]: Got latest post data.")
-        output = db.addCompanyPost(
+        addedpost = db.addCompanyPost(
             company.ID, {"postLink": output["postLink"], "postData": postBody}
         )
-        if output == "EXISTS":
+        if addedpost == "EXISTS":
             print(f"CHECKPOINT[{output['companyName']}]: Not a new post")
         else:
             print(f"CHECKPOINT[{output['companyName']}]: Added the post data to db")
@@ -49,7 +49,7 @@ def stime(h, m, s):
 
 
 # due to vm being in london time
-schedule.every().day.at(stime(12, 0, 0)).do(fetchLatestCompanyPost)
+schedule.every().day.at(stime(6, 30, 0)).do(fetchLatestCompanyPost)
 while True:
     schedule.run_pending()
     print("Waiting for next execution", end="\r")
