@@ -6,7 +6,7 @@ from get_latest_linkedin_post import get_latest_linked_post
 from models import DBSession
 from tools import scrape_linkedin_post
 
-companies = None
+companies = []
 
 
 def fetchPost(postLink):
@@ -18,16 +18,16 @@ def fetchPost(postLink):
 
 
 def fetchLatestCompanyPost():
-    if companies == None:
+    global companies
+    if len(companies) == 0:
         db = DBSession()
         companies = db.getCompany()
-
     for company in companies:
         output = get_latest_linked_post(company.pageLink)
         print(f"CHECKPOINT[{output['companyName']}]: Got latest post link.")
         postBody = fetchPost(output["postLink"])
         print(f"CHECKPOINT[{output['companyName']}]: Got latest post data.")
-        db.addCompanyPost(companyId=company.ID, data=postBody)
+        db.addCompanyPost(company.ID, postBody)
         print(f"CHECKPOINT[{output['companyName']}]: Added the post data to db")
 
 

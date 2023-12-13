@@ -50,28 +50,44 @@ for table in Base.metadata.sorted_tables:
 
 class DBSession:
     def __init__(self):
-        self.SessionMaker = sessionmaker()
-        self.session = self.SessionMaker(bind=engine)
+        self.SessionMaker = sessionmaker(bind=engine)
+        self.session = None
+
+    def start(self):
+        self.session = self.SessionMaker()
 
     def close(self):
-        self.session.close()
+        if self.session:
+            self.session.close()
 
     def getCompany(self):
-        return self.session.query(Company).all()
+        self.start()
+        companies = self.session.query(Company).all()
+        self.close()
+        return companies
 
     def getCompanyPost(self, companyId):
-        return self.session.query(CompanyPost).filter_by(companyId=companyId).all()
+        self.start()
+        posts = self.session.query(CompanyPost).filter_by(companyId=companyId).all()
+        self.close()
+        return posts
 
     def getCompanyPostByLink(self, post_link):
-        return self.session.query(CompanyPost).filter_by(postLink=post_link).first()
+        self.start()
+        post = self.session.query(CompanyPost).filter_by(postLink=post_link).first()
+        self.close()
+        return post
 
     def addCompany(self, data):
+        self.start()
         new_company = Company(Name=data.get("name"), pageLink=data.get("pageLink"))
         self.session.add(new_company)
         self.session.commit()
+        self.close()
         return new_company
 
     def addCompanyPost(self, companyId, data):
+        self.start()
         company = self.session.query(Company).get(companyId)
         if company:
             new_post = CompanyPost(
@@ -81,27 +97,35 @@ class DBSession:
             )
             self.session.add(new_post)
             self.session.commit()
+            self.close()
             return new_post
         else:
             print(f"Company with ID {companyId} not found.")
+            self.close()
             return None
 
     def updateCompanyPost(self, post_id, new_post_data):
+        self.start()
         post = self.session.query(CompanyPost).get(post_id)
         if post:
             post.postData = new_post_data
             self.session.commit()
+            self.close()
             return post
         else:
             print(f"Company post with ID {post_id} not found.")
+            self.close()
             return None
 
     def updatePostData(self, post_id, new_post_data):
+        self.start()
         post = self.session.query(CompanyPost).get(post_id)
         if post:
             post.postData = new_post_data
             self.session.commit()
+            self.close()
             return post
         else:
             print(f"Company post with ID {post_id} not found.")
+            self.close()
             return None
