@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Path, Body
 from ai import generateReportFromPosts
 from models import DBSession
 
@@ -49,7 +49,7 @@ def searchCompany(name: str = ""):
 
 
 @api.get(company + "/{companyId}/insights")
-def getInsights(companyId, data):
+def getInsights(companyId=Path(...), data=Body(...)):
     try:
         print(data["newPrompt"])
         posts = [post.postData for post in db.getCompanyPost(companyId)]
