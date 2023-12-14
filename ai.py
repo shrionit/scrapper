@@ -18,8 +18,6 @@ You are a sales assistant for Webknot company your job is to go through the post
 and analayze the post data and create a detailed report about what experties they lack, need or focusing on.
 """
 
-updateContext("system", basePrompt)
-
 
 def addPostData(postData):
     for post in postData:
@@ -27,6 +25,8 @@ def addPostData(postData):
 
 
 def generateReportFromPosts(postData):
+    CONTEXT = []
+    updateContext("system", basePrompt)
     addPostData(postData)
     response = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=CONTEXT)
     return response
