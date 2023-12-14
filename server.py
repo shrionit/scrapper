@@ -49,7 +49,7 @@ def searchCompany(name: str = ""):
 
 
 @api.get(company + "/{companyId}/insights")
-def getInsights(companyId=Path(...), data=Body(...)):
+def getInsights(companyId=Path(...), data=Body(None)):
     try:
         print(data["newPrompt"])
         posts = [post.postData for post in db.getCompanyPost(companyId)]
