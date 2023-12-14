@@ -49,8 +49,9 @@ def searchCompany(name: str = ""):
 
 
 @api.get(company + "/{companyId}/insights")
-def getInsights(companyId):
+def getInsights(companyId, data):
     try:
+        print(data["newPrompt"])
         posts = [post.postData for post in db.getCompanyPost(companyId)]
         return generateReportFromPosts(posts)
     except Exception as e:
