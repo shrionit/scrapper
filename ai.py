@@ -22,4 +22,4 @@ def generateReportFromPosts(postData):
     for post in postData:
         updateContext(CONTEXT, "user", post)
     response = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=CONTEXT)
-    return response
+    return response.choices[0].message.content
