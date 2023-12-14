@@ -5,12 +5,9 @@ from tools import read_from_file
 openai.api_key = json.loads(read_from_file("dbconfig.json")).get("openai_key", "")
 
 
-CONTEXT = []
-
-
-def updateContext(whoSaid, what):
+def updateContext(ctx, whoSaid, what):
     c = {"role": whoSaid, "content": what}
-    CONTEXT.append(c)
+    return ctx.append(c)
 
 
 basePrompt = """
@@ -19,14 +16,10 @@ and analayze the post data and create a detailed report about what experties the
 """
 
 
-def addPostData(postData):
-    for post in postData:
-        updateContext("user", post)
-
-
 def generateReportFromPosts(postData):
     CONTEXT = []
-    updateContext("system", basePrompt)
-    addPostData(postData)
+    updateContext(CONTEXT, "system", basePrompt)
+    for post in postData:
+        updateContext(CONTEXT, "user", post)
     response = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=CONTEXT)
     return response
