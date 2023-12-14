@@ -10,13 +10,11 @@ def updateContext(ctx, whoSaid, what):
     return ctx.append(c)
 
 
-basePrompt = """
-You are a sales assistant for Webknot company your job is to go through the posts of a potential clients linkedin posts
-and analayze the post data and create a presentable detailed report with key points in bullet points and a summary about what experties they lack, need or focusing on.
-"""
-
-
 def generateReportFromPosts(postData, newBasePrompt=None):
+    basePrompt = """
+    You are a sales assistant for Webknot company your job is to go through the posts of a potential clients linkedin posts
+    and analayze the post data and create a presentable detailed report with key points in bullet points and a summary about what experties they lack, need or focusing on.
+    """
     CONTEXT = []
     if newBasePrompt:
         basePrompt = newBasePrompt
