@@ -51,9 +51,8 @@ def searchCompany(name: str = ""):
 @api.get(company + "/{companyId}/insights")
 def getInsights(companyId=Path(...), data=Body(None)):
     try:
-        print(data.get("newPrompt"))
         posts = [post.postData for post in db.getCompanyPost(companyId)]
-        return generateReportFromPosts(posts)
+        return generateReportFromPosts(posts, data and data["newPrompt"])
     except Exception as e:
         print(e)
         return "Error: Something went wrong with the AI"
