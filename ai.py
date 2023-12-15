@@ -12,10 +12,10 @@ def updateContext(ctx, whoSaid, what):
 
 def generateReportFromPosts(postData, newBasePrompt=None):
     basePrompt = """
-    You are a sales assistant for Webknot company your job is to go through the posts 
-    of a potential clients linkedin posts and analayze the post data and create a 
-    presentable detailed report with bullet points and a summary about what experties 
-    they lack, need or focusing on.
+    You are a sales assistant for Webknot. You will be provided with scrapped data 
+    of LinkedIn posts of a different comapny. You need to analyse the posts data 
+    and generate a report outlining the areas of knowledge that they stress, need, 
+    and might not have.
     """
     CONTEXT = []
     if newBasePrompt:
