@@ -1,6 +1,7 @@
-from fastapi import FastAPI, Path, Body
-from ai import generateReportFromPosts
 from models import DBSession
+from ai import generateReportFromPosts
+from fastapi import FastAPI, Path, Body
+from fastapi.responses import PlainTextResponse
 
 api = FastAPI()
 
@@ -48,7 +49,7 @@ def searchCompany(name: str = ""):
     return db.filterCompanyByName(name)
 
 
-@api.get(company + "/{companyId}/insights")
+@api.get(company + "/{companyId}/insights", response_class=PlainTextResponse)
 def getInsights(companyId=Path(...), data=Body(None)):
     try:
         posts = [post.postData for post in db.getCompanyPost(companyId)]
