@@ -22,6 +22,9 @@ class Company(Base):
     ID = Column(Integer, primary_key=True, autoincrement=True)
     Name = Column(String)
     pageLink = Column(String)
+    aboutData = Column(Text)
+    companyLink = Column(String)
+    companyLinkData = Column(Text)
 
     # Define the relationship to CompanyPost
     posts = relationship(
@@ -42,13 +45,7 @@ class CompanyPost(Base):
 
 
 # Check if tables exist
-for table in Base.metadata.sorted_tables:
-    if inspector.has_table(table.name, schema="public"):
-        # Table exists, no need to create
-        continue
-    else:
-        # Create the table
-        table.create(bind=engine)
+Base.metadata.create_all(bind=engine)
 
 
 class DBSession:
@@ -96,11 +93,24 @@ class DBSession:
 
     def addCompany(self, data):
         self.start()
-        new_company = Company(Name=data.get("name"), pageLink=data.get("pageLink"))
-        self.session.add(new_company)
-        self.session.commit()
-        self.close()
-        return new_company
+        Name = data.get("name").strip()
+        existing_post = self.session.query(Company).filter_by(Name=Name).first()
+        if existing_post:
+            print(f"Company with name '{Name}' already exists. Not adding a new one.")
+            self.close()
+            return "EXISTS"
+        else:
+            new_company = Company(
+                Name=data.get("name"),
+                pageLink=data.get("pageLink"),
+                aboutData=data.get("aboutData"),
+                companyLink=data.get("companyLink"),
+                companyLinkData=data.get("companyLinkData"),
+            )
+            self.session.add(new_company)
+            self.session.commit()
+            self.close()
+            return new_company
 
     def addCompanyPost(self, companyId, data):
         self.start()
@@ -160,6 +170,19 @@ class DBSession:
             print(f"Company post with ID {post_id} not found.")
             self.close()
             return None
+
+    def updateCompany(self, companyId, data):
+        self.start()
+        company = self.session.query(Company).filter_by(ID=companyId).first()
+        if company:
+            company.pageLink = data.get("pageLink", company.pageLink)
+            company.companyLink = data.get("companyLink", company.companyLink)
+            company.aboutData = data.get("aboutData", company.aboutData)
+            company.companyLinkData = data.get(
+                "companyLinkData", company.companyLinkData
+            )
+            self.session.commit()
+        self.close()
 
 
 def getLastCompanyPosts():
