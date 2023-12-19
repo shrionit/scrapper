@@ -10,7 +10,7 @@ def updateContext(ctx, whoSaid, what):
     return ctx.append(c)
 
 
-def generateReportFromPosts(postData, newBasePrompt=None):
+def generateReportFromPosts(postData, newBasePrompt=None, aboutData="", webPageData=""):
     basePrompt = """
     You are a sales assistant for Webknot. You will be provided with scrapped data 
     of LinkedIn posts of a different comapny. You need to analyse the posts data 
@@ -23,5 +23,12 @@ def generateReportFromPosts(postData, newBasePrompt=None):
     updateContext(CONTEXT, "system", basePrompt)
     for post in postData:
         updateContext(CONTEXT, "user", post)
+    if aboutData:
+        updateContext(CONTEXT, "user", "use this linkedin about section data as well")
+        updateContext(CONTEXT, "user", aboutData)
+    if webPageData:
+        updateContext(CONTEXT, "user", "use this company's website data as well")
+        updateContext(CONTEXT, "user", aboutData)
+    updateContext(CONTEXT, "user", "anyalyze everything and generate the report")
     response = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=CONTEXT)
     return response.choices[0].message.content

@@ -60,9 +60,12 @@ class DBSession:
         if self.session:
             self.session.close()
 
-    def getCompany(self):
+    def getCompany(self, companyId=None):
         self.start()
-        companies = self.session.query(Company).all()
+        if not companyId:
+            companies = self.session.query(Company).all()
+        else:
+            companies = self.session.query(Company).filter_by(ID=companyId).first()
         self.close()
         return companies
 
