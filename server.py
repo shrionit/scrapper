@@ -1,7 +1,10 @@
+from get_latest_linkedin_post import get_about_data, scrapPage
 from models import DBSession
 from ai import generateReportFromPosts
 from fastapi import FastAPI, Path, Body
 from fastapi.responses import PlainTextResponse
+
+from tools import create_soup
 
 api = FastAPI()
 
@@ -15,6 +18,16 @@ def listCompanies():
     return db.getCompany()
 
 
+@api.options(company)
+def add_company_options():
+    out = {
+        "name": "string",
+        "link": "string",
+        "companyLink": "string",
+    }
+    return out
+
+
 @api.post(company)
 def add_company(data: dict):
     if not data:
@@ -22,11 +35,23 @@ def add_company(data: dict):
 
     company_name = data.get("name", None)
     company_link = data.get("link", None)
+    company_website_link = data.get("companyLink", "")
+
+    aboutData = get_about_data(company_link)
+    companyWebData = scrapPage(company_website_link)
 
     if not company_name or not company_link:
         return {"error": "Both 'name' and 'link' are required fields"}
 
-    if db.addCompany({"pageLink": company_link, "name": company_name}):
+    payload = {
+        "pageLink": company_link,
+        "name": company_name,
+        "aboutData": aboutData,
+        "companyLink": company_website_link,
+        "companyLinkData": companyWebData,
+    }
+
+    if db.addCompany(payload):
         return {
             "message": "Company added successfully",
             "name": company_name,

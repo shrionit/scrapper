@@ -1,4 +1,5 @@
 import json
+import os
 import pyperclip
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -35,19 +36,10 @@ def createClassSelector(classname):
     return ".".join(f".{classname}".split(" "))
 
 
-def get_latest_linked_post(pageUrl: str):
+def initBrowser():
     config = json.loads(read_from_file("dbconfig.json"))
     username = config["lusername"]
     password = config["lpassword"]
-    loginwait = int(config.get("loginWait", 5))
-    postpagewait = int(config.get("postPageWait", 10))
-    clickWait = int(config.get("postClickWait", 5))
-
-    # chromeOptions = Options()
-    # chromeOptions.add_argument("--no-sandbox")
-    # chromeOptions.add_argument("--headless")
-    # chromeOptions.add_argument("--disable-dev-shm-usage")
-
     # Initialize WebDriver for Chrome
     browser = webdriver.Chrome()
 
@@ -55,17 +47,59 @@ def get_latest_linked_post(pageUrl: str):
     browser.get("https://www.linkedin.com/login")
 
     # Enter login credentials and submit
-    elementID = browser.find_element(By.ID, "username")
-    elementID.send_keys(username)
-    elementID = browser.find_element(By.ID, "password")
-    elementID.send_keys(password)
-    elementID.submit()
-    time.sleep(loginwait)
+    login = browser.find_element(By.ID, "username")
+    login.send_keys(username)
+    login = browser.find_element(By.ID, "password")
+    login.send_keys(password)
+    login.submit()
+    return browser
+
+
+def scrapPage(pageUrl, browser=None):
+    if not browser:
+        browser = webdriver.Chrome()
+    browser.get(pageUrl)
+    body = browser.find_element(By.TAG_NAME, "body")
+    return body.text
+
+
+def get_about_data(pageUrl, browser=None):
+    if not browser:
+        config = json.loads(read_from_file("dbconfig.json"))
+        loginwait = int(config.get("loginWait", 5))
+        browser = initBrowser()
+        time.sleep(loginwait)
+    d = pageUrl.split("/company/")
+    pageUrl = d[0] + "/company/" + d[1].split("/")[0]
+    aboutPageUrl = (pageUrl + "/about").replace("//", "/")
+    print(f"{aboutPageUrl=}")
+    browser.get(aboutPageUrl)
+    time.sleep(5)
+    element = browser.find_elements(By.TAG_NAME, "section")
+    for e in element:
+        if "org-about-module" in e.get_attribute("class"):
+            return e.text
+    return ""
+
+
+def get_latest_linked_post(pageUrl: str, browser=None):
+    # Initialize WebDriver for Chrome
+    config = json.loads(read_from_file("dbconfig.json"))
+    postpagewait = int(config.get("postPageWait", 5))
+    clickWait = int(config.get("postClickWait", 5))
+    if not browser:
+        loginwait = int(config.get("loginWait", 5))
+        browser = initBrowser()
+        time.sleep(loginwait)
+
+    d = pageUrl.split("/company/")
+    pageUrl = d[0] + "/company/" + d[1].split("/")[0]
 
     # Navigate to the posts page of the company
     company_name = (
         pageUrl.split("company")[-1].strip("/").split("/")[0].replace("-", " ").title()
     )
+
     post_page = pageUrl + "/posts"
     post_page = post_page.replace("//posts", "/posts")
     browser.get(post_page)
@@ -96,5 +130,5 @@ def get_latest_linked_post(pageUrl: str):
 
 if __name__ == "__main__":
     d = get_latest_linked_post("https://www.linkedin.com/company/accenture/")
-    with open("/tmp/out.txt", "w") as f:
+    with open(os.path.abspath("/tmp/out.txt"), "w") as f:
         f.writelines(json.dumps(d))
