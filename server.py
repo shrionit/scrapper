@@ -79,7 +79,7 @@ def searchCompany(name: str = ""):
 def getInsights(
     companyId=Path(...),
     limit: Optional[int] = Query(10),
-    data: Optional[dict] = Body(None),
+    data: Optional[dict] = Body({}),
 ):
     try:
         posts = [post.postData for post in db.getCompanyPost(companyId, limit)]
