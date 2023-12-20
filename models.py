@@ -7,6 +7,7 @@ from sqlalchemy import (
     Text,
     ForeignKey,
     MetaData,
+    desc,
     inspect,
 )
 from sqlalchemy.orm import declarative_base, relationship, sessionmaker
@@ -69,9 +70,22 @@ class DBSession:
         self.close()
         return companies
 
-    def getCompanyPost(self, companyId):
+    def getCompanyPost(self, companyId, limit=10):
         self.start()
-        posts = self.session.query(CompanyPost).filter_by(companyId=companyId).limit(10)
+        if limit:
+            posts = (
+                self.session.query(CompanyPost)
+                .filter_by(companyId=companyId)
+                .order_by(desc(CompanyPost.ID))
+                .limit(limit)
+            )
+        else:
+            posts = (
+                self.session.query(CompanyPost)
+                .filter_by(companyId=companyId)
+                .order_by(desc(CompanyPost.ID))
+                .all()
+            )
         self.close()
         return posts
 

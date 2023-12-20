@@ -1,7 +1,8 @@
+from typing import Optional
 from get_latest_linkedin_post import get_about_data, scrapPage
 from models import DBSession
 from ai import generateReportFromPosts
-from fastapi import FastAPI, Path, Body
+from fastapi import FastAPI, Path, Body, Query
 from fastapi.responses import PlainTextResponse
 
 from tools import create_soup
@@ -75,9 +76,13 @@ def searchCompany(name: str = ""):
 
 
 @api.get(company + "/{companyId}/insights", response_class=PlainTextResponse)
-def getInsights(companyId=Path(...), data=Body(None)):
+def getInsights(
+    companyId=Path(...),
+    limit: Optional[int] = Query(10),
+    data: Optional[dict] = Body(None),
+):
     try:
-        posts = [post.postData for post in db.getCompanyPost(companyId)]
+        posts = [post.postData for post in db.getCompanyPost(companyId, limit)]
         company = db.getCompany(companyId=companyId)
         return generateReportFromPosts(
             posts,
