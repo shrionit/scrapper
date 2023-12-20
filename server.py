@@ -84,6 +84,8 @@ def getInsights(
     try:
         posts = [post.postData for post in db.getCompanyPost(companyId, limit)]
         company = db.getCompany(companyId=companyId)
+        if not company:
+            return f"Error: Company with {companyId=} not found"
         return generateReportFromPosts(
             posts,
             data.get("newPrompt", None),
