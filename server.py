@@ -81,10 +81,10 @@ def getInsights(companyId=Path(...), data=Body(None)):
         company = db.getCompany(companyId=companyId)
         return generateReportFromPosts(
             posts,
-            data and data["newPrompt"],
+            data.get("newPrompt", None),
             aboutData=company.aboutData or "",
             webPageData=company.companyLinkData or "",
         )
     except Exception as e:
-        print(e)
+        print(f"error: {e}")
         return "Error: Something went wrong with the AI"

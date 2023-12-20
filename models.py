@@ -71,7 +71,7 @@ class DBSession:
 
     def getCompanyPost(self, companyId):
         self.start()
-        posts = self.session.query(CompanyPost).filter_by(companyId=companyId).all()
+        posts = self.session.query(CompanyPost).filter_by(companyId=companyId).limit(10)
         self.close()
         return posts
 
