@@ -1,12 +1,11 @@
 import json
 from sqlalchemy import (
-    create_engine,
     Column,
     Integer,
     String,
     Text,
     ForeignKey,
-    MetaData,
+    func,
     desc,
     inspect,
 )
@@ -45,6 +44,12 @@ class CompanyPost(Base):
     company = relationship("Company", back_populates="posts")
 
 
+class Prompt(Base):
+    __tablename__ = "prompts"
+    ID = Column(Integer, primary_key=True, autoincrement=True)
+    prompt = Column(Text)
+
+
 # Check if tables exist
 Base.metadata.create_all(bind=engine)
 
@@ -61,7 +66,7 @@ class DBSession:
         if self.session:
             self.session.close()
 
-    def getCompany(self, companyId=None):
+    def getCompany_prev(self, companyId=None):
         self.start()
         if not companyId:
             companies = self.session.query(Company).all()
@@ -69,6 +74,49 @@ class DBSession:
             companies = self.session.query(Company).filter_by(ID=companyId).first()
         self.close()
         return companies
+
+    def getCompany(self, companyId=None):
+        self.start()
+        out = None
+        if not companyId:
+            # Fetch all companies and their post counts
+            out = []
+            companies = (
+                self.session.query(
+                    Company, func.count(CompanyPost.ID).label("postCount")
+                )
+                .outerjoin(CompanyPost, Company.ID == CompanyPost.companyId)
+                .group_by(Company.ID)
+                .all()
+            )
+
+            # Now each company in the 'companies' list will have a 'postCount' attribute
+            for company, post_count in companies:
+                company.postCount = post_count
+                out.append(company)
+
+        else:
+            # Fetch a specific company and its post count
+            company = (
+                self.session.query(
+                    Company, func.count(CompanyPost.ID).label("postCount")
+                )
+                .outerjoin(CompanyPost, Company.ID == CompanyPost.companyId)
+                .filter(Company.ID == companyId)
+                .group_by(Company.ID)
+                .first()
+            )
+
+            if company:
+                company[0].postCount = company[1]
+                out = company[0]
+            else:
+                # Handle the case where the company with the specified ID is not found
+                company = None
+                out = None
+
+        self.close()
+        return out
 
     def getCompanyPostCount(self, companyId):
         self.start()
@@ -207,6 +255,50 @@ class DBSession:
             )
             self.session.commit()
         self.close()
+
+    def getPrompts(self, id=None):
+        self.start()
+        out = None
+        if id:
+            out = self.session.query(Prompt).filter_by(ID=id).first()
+        else:
+            out = self.session.query(Prompt).all()
+        self.close()
+        return out
+
+    def addPrompt(self, prompt):
+        self.start()
+        prompt = Prompt(prompt=prompt)
+        self.session.add(prompt)
+        self.session.commit()
+        self.session.refresh(prompt)
+        self.close()
+        return prompt
+
+    def updatePrompt(self, id, newPrompt):
+        self.start()
+        prompt = self.session.query(Prompt).filter_by(ID=id).first()
+        out = None
+        if prompt:
+            prompt.prompt = newPrompt
+            self.session.commit()
+            self.session.refresh(prompt)
+            out = prompt
+        self.close()
+        return out
+
+    def deletePrompt(self, id):
+        self.start()
+        prompt = self.session.query(Prompt).filter_by(ID=id).first()
+        out = None
+        if prompt:
+            self.session.delete(prompt)
+            self.session.commit()
+            out = {"message": "Prompt deleted successfully"}
+        else:
+            out = {"Error": "Prompt not found"}
+        self.close()
+        return out
 
 
 def getLastCompanyPosts():

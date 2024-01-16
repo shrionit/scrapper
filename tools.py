@@ -20,6 +20,10 @@ def extract_scripts(element):
     return ""
 
 
+def getEnv(key, default=None):
+    return os.getenv(key, default)
+
+
 def read_from_file(file_path):
     try:
         with open(os.path.abspath(file_path), "r") as file:
@@ -60,3 +64,29 @@ def convert_dict_to_json(input_dict):
     except Exception as e:
         print(f"Error converting dictionary to JSON: {e}")
         return None
+
+
+def getConfig(configPath="dbconfig.json"):
+    config = {}
+
+    try:
+        # Try to load config from the file
+        with open(os.path.abspath(configPath), "r") as file:
+            content = file.read()
+            config = json.loads(content)
+    except FileNotFoundError:
+        # If the file is not found, use environment variables
+        config = {
+            "username": getEnv("USERNAME"),
+            "password": getEnv("PASSWORD"),
+            "dbname": getEnv("DBNAME"),
+            "port": getEnv("PORT"),
+            "host": getEnv("HOST"),
+            "lusername": getEnv("LUSERNAME"),
+            "lpassword": getEnv("LPASSWORD"),
+            "loginWait": getEnv("LOGIN_WAIT"),
+            "postPageWait": getEnv("POST_PAGE_WAIT"),
+            "postClickWait": getEnv("POST_CLICK_WAIT"),
+            "openai_key": getEnv("OPENAI_KEY"),
+        }
+    return config

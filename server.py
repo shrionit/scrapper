@@ -12,7 +12,7 @@ api = FastAPI()
 db = DBSession()
 
 company = "/api/companys"
-
+prompt = "/api/prompts"
 
 def generateReportFromCompanyData(companyId, limit=10, offset=0, newPrompt=None):
     ai = AI()
@@ -100,8 +100,42 @@ def searchCompany(name: str = ""):
 def getInsights(
     companyId=Path(...),
     limit: Optional[int] = Query(10),
+    offset: Optional[int] = Query(0),
     data: Optional[dict] = Body({}),
 ):
     return generateReportFromCompanyData(
-        companyId, limit=limit, offset=0, newPrompt=data.get("newPrompt", None)
+        companyId, limit=limit, offset=offset, newPrompt=data.get("newPrompt", None)
     )
+
+
+@api.get(prompt)
+def getPrompts():
+    return db.getPrompts()
+
+
+@api.get(prompt + "/{promptId}")
+def getPrompt(promptId=Path(...)):
+    return db.getPrompts(promptId)
+
+
+@api.post(prompt)
+def addPrompt(data: dict):
+    prompt = data.get("prompt", None)
+    if prompt:
+        return db.addPrompt(data.get("prompt"))
+    else:
+        return {"prompt": "Is Required"}
+
+
+@api.put(prompt + "/{promptId}")
+def updatePrompt(promptId=Path(...), data=Body({})):
+    prompt = data.get("prompt", None)
+    if prompt:
+        return db.updatePrompt(promptId, data.get("prompt"))
+    else:
+        return {"prompt": "Is Required"}
+
+
+@api.delete(prompt + "/{promptId}")
+def deletePrompt(promptId=Path(...)):
+    return db.deletePrompt(promptId)
