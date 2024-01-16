@@ -21,7 +21,6 @@ def handle_generate(*, companyId=0, limit=0, offset=0, newPrompt=None):
         companyId=companyId, limit=limit, offset=offset, newPrompt=newPrompt
     )
     st.session_state["response"] = report
-    print(st.session_state["response"])
 
 
 st.set_page_config(layout="wide")
