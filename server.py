@@ -1,7 +1,7 @@
 from typing import Optional
 from get_latest_linkedin_post import get_about_data, scrapPage
 from models import DBSession
-from ai import generateReportFromPosts
+from ai import AI
 from fastapi import FastAPI, Path, Body, Query
 from fastapi.responses import PlainTextResponse
 
@@ -12,6 +12,27 @@ api = FastAPI()
 db = DBSession()
 
 company = "/api/companys"
+
+
+def generateReportFromCompanyData(companyId, limit=10, offset=0, newPrompt=None):
+    ai = AI()
+    try:
+        posts = [
+            post.postData
+            for post in db.getCompanyPost(companyId, limit=limit, offset=offset)
+        ]
+        company = db.getCompany(companyId=companyId)
+        if not company:
+            return f"Error: Company with {companyId=} not found"
+        return ai.generateReportFromPosts(
+            posts,
+            newPrompt,
+            aboutData=company.aboutData or "",
+            webPageData=company.companyLinkData or "",
+        )
+    except Exception as e:
+        print(f"error: {e}")
+        return "Error: Something went wrong with the AI"
 
 
 @api.get(company)
@@ -81,17 +102,6 @@ def getInsights(
     limit: Optional[int] = Query(10),
     data: Optional[dict] = Body({}),
 ):
-    try:
-        posts = [post.postData for post in db.getCompanyPost(companyId, limit)]
-        company = db.getCompany(companyId=companyId)
-        if not company:
-            return f"Error: Company with {companyId=} not found"
-        return generateReportFromPosts(
-            posts,
-            data.get("newPrompt", None),
-            aboutData=company.aboutData or "",
-            webPageData=company.companyLinkData or "",
-        )
-    except Exception as e:
-        print(f"error: {e}")
-        return "Error: Something went wrong with the AI"
+    return generateReportFromCompanyData(
+        companyId, limit=limit, offset=0, newPrompt=data.get("newPrompt", None)
+    )

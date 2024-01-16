@@ -1,6 +1,15 @@
 import json, os
 from bs4 import BeautifulSoup
 import requests
+import tiktoken
+
+
+def get_token_count(prompt):
+    # Use tiktoken to count tokens without making an API call
+    encoding = tiktoken.encoding_for_model("gpt-3.5-turbo")
+    encoded_text = encoding.encode(prompt)
+
+    return len(encoded_text)
 
 
 def extract_scripts(element):

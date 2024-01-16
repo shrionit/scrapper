@@ -70,13 +70,20 @@ class DBSession:
         self.close()
         return companies
 
-    def getCompanyPost(self, companyId, limit=10):
+    def getCompanyPostCount(self, companyId):
+        self.start()
+        count = self.session.query(CompanyPost).filter_by(companyId=companyId).count()
+        self.close()
+        return count
+
+    def getCompanyPost(self, companyId, offset=0, limit=10):
         self.start()
         if limit:
             posts = (
                 self.session.query(CompanyPost)
                 .filter_by(companyId=companyId)
                 .order_by(desc(CompanyPost.ID))
+                .offset(offset)
                 .limit(limit)
             )
         else:
