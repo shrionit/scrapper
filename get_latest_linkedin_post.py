@@ -82,7 +82,7 @@ def get_about_data(pageUrl, browser=None):
     return ""
 
 
-def get_latest_linked_post(pageUrl: str, browser=None):
+def get_latest_linked_post(companies, browser=None):
     # Initialize WebDriver for Chrome
     config = json.loads(read_from_file("dbconfig.json"))
     postpagewait = int(config.get("postPageWait", 5))
@@ -91,41 +91,47 @@ def get_latest_linked_post(pageUrl: str, browser=None):
         loginwait = int(config.get("loginWait", 5))
         browser = initBrowser()
         time.sleep(loginwait)
+    for company in companies:
+        pageUrl = company.pageLink
+        d = pageUrl.split("/company/")
+        pageUrl = d[0] + "/company/" + d[1].split("/")[0]
 
-    d = pageUrl.split("/company/")
-    pageUrl = d[0] + "/company/" + d[1].split("/")[0]
+        # Navigate to the posts page of the company
+        company_name = (
+            pageUrl.split("company")[-1]
+            .strip("/")
+            .split("/")[0]
+            .replace("-", " ")
+            .title()
+        )
 
-    # Navigate to the posts page of the company
-    company_name = (
-        pageUrl.split("company")[-1].strip("/").split("/")[0].replace("-", " ").title()
-    )
+        post_page = pageUrl + "/posts"
+        post_page = post_page.replace("//posts", "/posts")
+        browser.get(post_page)
 
-    post_page = pageUrl + "/posts"
-    post_page = post_page.replace("//posts", "/posts")
-    browser.get(post_page)
+        time.sleep(postpagewait)
 
-    time.sleep(postpagewait)
+        element = browser.find_element(
+            By.CSS_SELECTOR,
+            createClassSelector(
+                "feed-shared-control-menu__trigger artdeco-button artdeco-button--tertiary artdeco-button--muted artdeco-button--1 artdeco-button--circle artdeco-dropdown__trigger artdeco-dropdown__trigger--placement-bottom ember-view"
+            ),
+        )
+        element.click()
+        time.sleep(clickWait)
+        dropDownContainerClass = createClassSelector(
+            "feed-shared-control-menu__content artdeco-dropdown__content artdeco-dropdown--is-dropdown-element artdeco-dropdown__content--has-arrow artdeco-dropdown__content--arrow-right artdeco-dropdown__content--justification-right artdeco-dropdown__content--placement-bottom ember-view"
+        )
+        dropdown = browser.find_element(By.CSS_SELECTOR, dropDownContainerClass)
 
-    element = browser.find_element(
-        By.CSS_SELECTOR,
-        createClassSelector(
-            "feed-shared-control-menu__trigger artdeco-button artdeco-button--tertiary artdeco-button--muted artdeco-button--1 artdeco-button--circle artdeco-dropdown__trigger artdeco-dropdown__trigger--placement-bottom ember-view"
-        ),
-    )
-    element.click()
-    time.sleep(clickWait)
-    dropDownContainerClass = createClassSelector(
-        "feed-shared-control-menu__content artdeco-dropdown__content artdeco-dropdown--is-dropdown-element artdeco-dropdown__content--has-arrow artdeco-dropdown__content--arrow-right artdeco-dropdown__content--justification-right artdeco-dropdown__content--placement-bottom ember-view"
-    )
-    dropdown = browser.find_element(By.CSS_SELECTOR, dropDownContainerClass)
-
-    dropdown.find_element(
-        By.CSS_SELECTOR,
-        createClassSelector("feed-shared-control-menu__item option-share-via"),
-    ).click()
-    time.sleep(2)
-    copied_text = pyperclip.paste()
-    return {"companyName": company_name, "postLink": copied_text}
+        dropdown.find_element(
+            By.CSS_SELECTOR,
+            createClassSelector("feed-shared-control-menu__item option-share-via"),
+        ).click()
+        time.sleep(2)
+        copied_text = pyperclip.paste()
+        company.latestPostLink = copied_text
+    return companies
 
 
 if __name__ == "__main__":

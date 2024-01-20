@@ -22,20 +22,18 @@ def fetchLatestCompanyPost():
     if len(companies) == 0:
         db = DBSession()
         companies = db.getCompany()
+    companies = get_latest_linked_post(companies)
     for company in companies:
-        output = get_latest_linked_post(company.pageLink)
-        print(f"CHECKPOINT[{output.get('companyName', '')}]: Got latest post link.")
-        postBody = fetchPost(output.get("postLink", ""))
-        print(f"CHECKPOINT[{output.get('companyName', '')}]: Got latest post data.")
+        print(f"CHECKPOINT[{company.Name}]: Got latest post link.")
+        postBody = fetchPost(company.latestPostLink)
+        print(f"CHECKPOINT[{company.Name}]: Got latest post data.")
         addedpost = db.addCompanyPost(
-            company.ID, {"postLink": output.get("postLink", ""), "postData": postBody}
+            company.ID, {"postLink": company.latestPostLink, "postData": postBody}
         )
         if addedpost == "EXISTS":
-            print(f"CHECKPOINT[{output.get('companyName', '')}]: Not a new post")
+            print(f"CHECKPOINT[{company.Name}]: Not a new post")
         else:
-            print(
-                f"CHECKPOINT[{output.get('companyName', '')}]: Added the post data to db"
-            )
+            print(f"CHECKPOINT[{company.Name}]: Added the post data to db")
 
 
 def time_until_target(target_seconds):
@@ -51,8 +49,13 @@ def stime(h, m, s):
 
 
 # due to vm being in london time
-schedule.every().day.at(stime(6, 30, 0)).do(fetchLatestCompanyPost)
-while True:
-    schedule.run_pending()
-    print("Waiting for next execution", end="\r")
-    time.sleep(1)
+def main():
+    schedule.every().day.at(stime(6, 30, 0)).do(fetchLatestCompanyPost)
+    while True:
+        schedule.run_pending()
+        print("Waiting for next execution", end="\r")
+        time.sleep(1)
+
+
+if __name__ == "__main__":
+    main()
